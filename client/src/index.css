@@ -1,0 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --crimson: #8b0000;
+  --sewer-black: #111111;
+  --dirty-white: #e8e4dc;
+  --balloon-red: #cc0000;
+  --dark-bg: #0a0a0a;
+  --card-bg: #141414;
+  --border: #222222;
+  --muted: #555555;
+
+  --font-horror: "Bebas Neue", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--dirty-white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+input,
+button,
+textarea,
+select {
+  font-family: var(--font-body);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sewer-black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--crimson);
+}
+::selection {
+  background: var(--crimson);
+  color: var(--dirty-white);
+}
+
+.lair-left {
+  display: none;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  position: relative;
+  z-index: 1;
+  border-right: 1px solid var(--border);
+}
+
+.lair-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .lair-left {
+    display: flex;
+  }
+}
