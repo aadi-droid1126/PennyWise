@@ -17,12 +17,15 @@ dotenv.config({ path: "../.env" });
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  "https://pennywise-gv7h.onrender.com",
+  "https://pennywise-n9em.onrender.com",
+  process.env.FRONTEND_URL, // set this in Render env vars
+].filter(Boolean);
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        "https://pennywise-gv7h.onrender.com",
-      ];
       if (
         !origin ||
         origin.startsWith("http://localhost:") ||
