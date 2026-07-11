@@ -41,7 +41,7 @@ app.use(cookieParser());
 app.use(globalLimiter);
 
 // Routes
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
 app.use("/api/goals", goalRoutes);
