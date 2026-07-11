@@ -20,7 +20,14 @@ const app = express();
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin.startsWith("http://localhost:")) {
+      const allowedOrigins = [
+        "https://pennywise-gv7h.onrender.com",
+      ];
+      if (
+        !origin ||
+        origin.startsWith("http://localhost:") ||
+        allowedOrigins.includes(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
