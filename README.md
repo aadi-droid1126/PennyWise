@@ -9,6 +9,8 @@ A **production-style expense tracker named PennyWise** built with the MERN stack
 
 Designed as a **portfolio-grade full-stack system** showcasing AI integration, secure authentication, and a distinctive, memorable UX identity.
 
+**🔗 Live Demo:** [pennywise-gv7h.onrender.com](https://pennywise-gv7h.onrender.com)
+
 ---
 
 ## 🚀 Live Capabilities
@@ -23,8 +25,8 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 
 - Expense logging ("Floaters") categorized and tracked in INR (₹)
 - Savings goals ("Escape from Derry") with animated balloon progress visuals
-- Budget tracking with visual budget bars
-- Streak tracking for consistent logging
+- Budget tracking with visual budget bars that flag "IT Whispers" at 80% and over-budget
+- **Days Since IT Appeared** — streak counter tracking consecutive days of logged activity
 
 ### 🤡 AI-Powered Roasts
 
@@ -35,9 +37,11 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 ### ✨ Premium UX Features
 
 - Framer Motion micro-interactions & animations
-- CSV export of transaction history
+- **Dual export** — download transaction history as CSV or a generated PDF case file (via jsPDF)
+- **Mobile bottom navigation** — 5-icon tab bar with a center FAB, fully independent of desktop layout
 - Fully horror-themed naming conventions throughout (Floaters, The Lair, The Ritual, Sewer Map)
-- Responsive, dark-mode-first design
+- Responsive, dark-mode-first, mobile-first design
+- Installable as a PWA (manifest + icon set)
 
 ---
 
@@ -48,6 +52,7 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - JWT auth with middleware guards
 - MongoDB relational modeling (Users ↔ Transactions ↔ Budgets ↔ Goals)
 - Groq SDK integration for AI-generated, context-aware responses
+- Shared `Layout` component driving consistent navigation (sidebar + bottom nav) across every authenticated page
 - Clean separation of frontend & backend concerns
 
 ---
@@ -59,6 +64,7 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - React (Vite)
 - Tailwind CSS
 - Framer Motion
+- jsPDF (client-side PDF export)
 - Web Speech API (voice narration)
 
 ### ⚙️ Backend
@@ -98,11 +104,13 @@ PennyWise
 │       ├── assets/
 │       ├── components/
 │       │   ├── Layout.jsx
+│       │   ├── BottomNav.jsx
 │       │   ├── features/
 │       │   │   ├── BudgetBar.jsx
 │       │   │   ├── GoalCard.jsx
 │       │   │   ├── PennywiseRoast.jsx
 │       │   │   ├── PennywiseVoice.jsx
+│       │   │   ├── StreakBadge.jsx
 │       │   │   └── TransactionRow.jsx
 │       │   └── ui/
 │       │       ├── Button.jsx
@@ -146,9 +154,10 @@ PennyWise
 
 - Built with a **scalable, feature-first folder architecture**
 - Integrates a **third-party LLM API (Groq)** for dynamic, context-aware content generation
-- Implements **production-grade UX polish** with animation and voice
-- Demonstrates **full-stack ownership** across auth, data modeling, and AI integration
+- Implements **production-grade UX polish** with animation, voice, and adaptive navigation
+- Demonstrates **full-stack ownership** across auth, data modeling, AI integration, and deployment
 - Portfolio-focused **clean, distinctively themed codebase**
+- Deployed and live on Render, with automatic redeploys on every commit
 
 ---
 
@@ -156,10 +165,11 @@ PennyWise
 
 > Add screenshots here:
 
-- Dashboard ("The Lair")
+- Dashboard ("The Lair") with streak counter
 - Goals with balloon progress ("Escape from Derry")
 - AI roast in action
-- Transaction history
+- Mobile bottom navigation
+- The Case File — CSV / PDF export
 
 ---
 
@@ -206,12 +216,12 @@ Client runs on `http://localhost:5173` and proxies API requests to the server.
 
 ## ☁️ Deployment
 
-Deployed as two separate services:
+Deployed as two separate services on Render:
 
 - **Backend** (`server/`) — Web Service, build with `npm install`, start with `npm start`
 - **Frontend** (`client/`) — Static Site, build with `npm run build`, publish directory `dist`
 
-Set the same variables from `.env` in your hosting provider's dashboard — never commit `.env` to version control.
+Set the same variables from `.env` in your hosting provider's dashboard — never commit `.env` to version control. MongoDB Atlas Network Access must allow the backend's outbound IP (or `0.0.0.0/0` for simplicity). The static site includes a catch-all rewrite (`/*` → `/index.html`) so client-side routes survive a page refresh.
 
 ---
 
@@ -227,7 +237,7 @@ LinkedIn: https://linkedin.com/in/aaditya-sharma-/
 
 **Full-stack MERN PennyWise**
 
-Built PennyWise—a horror-themed expense tracker with AI-powered spending roasts, animated goal tracking, and voice narration using the MERN stack, implementing JWT authentication, Groq LLM integration, and modular backend architecture.
+Built PennyWise—a horror-themed expense tracker with AI-powered spending roasts, animated goal tracking, streak tracking, and dual CSV/PDF export using the MERN stack, implementing JWT authentication, Groq LLM integration, adaptive mobile/desktop navigation, and modular backend architecture. Deployed live on Render.
 
 ---
 
