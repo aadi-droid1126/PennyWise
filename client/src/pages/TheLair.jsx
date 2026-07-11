@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const TheLair = () => {
-  const [mode, setMode] = useState("login");
+  const [view, setView] = useState("landing"); // "landing" | "login" | "register"
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ const TheLair = () => {
     setError("");
     setLoading(true);
     try {
-      if (mode === "login") {
+      if (view === "login") {
         await login(form.email, form.password);
       } else {
         await register(form.name, form.email, form.password);
@@ -34,114 +34,128 @@ const TheLair = () => {
     <div style={styles.root}>
       <div style={styles.bg} />
 
-      <div className="lair-left">
-        <div style={styles.leftInner}>
-          <div style={styles.logoMark}>
-            <div style={styles.logoLine} />
-            <span style={styles.logoSymbol}>¢</span>
-            <div style={styles.logoLine} />
-          </div>
-          <h1 style={styles.bigTitle}>PENNYWISE</h1>
-          <p style={styles.leftTag}>We all spend down here.</p>
-          <div style={styles.leftMeta}>
-            <span style={styles.metaItem}>₹ EXPENSE TRACKER</span>
-            <span style={styles.metaDot}>·</span>
-            <span style={styles.metaItem}>EST. 2025</span>
-          </div>
-        </div>
-      </div>
+      <div style={styles.center}>
+        {view === "landing" ? (
+          <div style={styles.landingInner}>
+            <div style={styles.logoMark}>
+              <div style={styles.logoLine} />
+              <span style={styles.logoSymbol}>¢</span>
+              <div style={styles.logoLine} />
+            </div>
+            <h1 style={styles.bigTitle}>PENNYWISE</h1>
+            <p style={styles.leftTag}>We all spend down here.</p>
+            <div style={styles.leftMeta}>
+              <span style={styles.metaItem}>₹ EXPENSE TRACKER</span>
+              <span style={styles.metaDot}>·</span>
+              <span style={styles.metaItem}>EST. 2025</span>
+            </div>
 
-      <div className="lair-right">
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.redBar} />
-            <span style={styles.cardTitle}>
-              {mode === "login" ? "ENTER THE LAIR" : "JOIN THE LOSERS"}
-            </span>
+            <div style={styles.landingBtns}>
+              <button
+                style={styles.btn}
+                onClick={() => { setView("login"); setError(""); }}
+              >
+                LOGIN
+              </button>
+              <button
+                style={styles.btnOutline}
+                onClick={() => { setView("register"); setError(""); }}
+              >
+                REGISTER
+              </button>
+            </div>
           </div>
+        ) : (
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={styles.redBar} />
+              <span style={styles.cardTitle}>
+                {view === "login" ? "ENTER THE LAIR" : "JOIN THE LOSERS"}
+              </span>
+            </div>
 
-          <div style={styles.tabs}>
-            <button
-              style={{ ...styles.tab, ...(mode === "login" ? styles.tabActive : {}) }}
-              onClick={() => { setMode("login"); setError(""); }}
-            >
-              Sign In
-            </button>
-            <button
-              style={{ ...styles.tab, ...(mode === "register" ? styles.tabActive : {}) }}
-              onClick={() => { setMode("register"); setError(""); }}
-            >
-              Register
-            </button>
-          </div>
+            <div style={styles.tabs}>
+              <button
+                style={{ ...styles.tab, ...(view === "login" ? styles.tabActive : {}) }}
+                onClick={() => { setView("login"); setError(""); }}
+              >
+                Sign In
+              </button>
+              <button
+                style={{ ...styles.tab, ...(view === "register" ? styles.tabActive : {}) }}
+                onClick={() => { setView("register"); setError(""); }}
+              >
+                Register
+              </button>
+            </div>
 
-          <form onSubmit={submit} style={styles.form}>
-            {mode === "register" && (
+            <form onSubmit={submit} style={styles.form}>
+              {view === "register" && (
+                <div style={styles.field}>
+                  <label style={styles.label}>Full Name</label>
+                  <input
+                    style={styles.input}
+                    name="name"
+                    type="text"
+                    placeholder="What do they call you?"
+                    value={form.name}
+                    onChange={handle}
+                    required
+                  />
+                </div>
+              )}
+
               <div style={styles.field}>
-                <label style={styles.label}>Full Name</label>
+                <label style={styles.label}>Email</label>
                 <input
                   style={styles.input}
-                  name="name"
-                  type="text"
-                  placeholder="What do they call you?"
-                  value={form.name}
+                  name="email"
+                  type="email"
+                  placeholder="your@soul.com"
+                  value={form.email}
                   onChange={handle}
                   required
                 />
               </div>
-            )}
 
-            <div style={styles.field}>
-              <label style={styles.label}>Email</label>
-              <input
-                style={styles.input}
-                name="email"
-                type="email"
-                placeholder="your@soul.com"
-                value={form.email}
-                onChange={handle}
-                required
-              />
-            </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Password</label>
+                <input
+                  style={styles.input}
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handle}
+                  required
+                />
+              </div>
 
-            <div style={styles.field}>
-              <label style={styles.label}>Password</label>
-              <input
-                style={styles.input}
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={handle}
-                required
-              />
-            </div>
+              {error && <p style={styles.error}>— {error}</p>}
 
-            {error && <p style={styles.error}>— {error}</p>}
+              <button
+                style={{ ...styles.btn, opacity: loading ? 0.6 : 1 }}
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? "DESCENDING..."
+                  : view === "login"
+                    ? "ENTER THE SEWER"
+                    : "JOIN THE LOSERS"}
+              </button>
+            </form>
 
-            <button
-              style={{ ...styles.btn, opacity: loading ? 0.6 : 1 }}
-              type="submit"
-              disabled={loading}
-            >
-              {loading
-                ? "DESCENDING..."
-                : mode === "login"
-                ? "ENTER THE SEWER"
-                : "JOIN THE LOSERS"}
-            </button>
-          </form>
-
-          <p style={styles.foot}>
-            {mode === "login" ? "New here? " : "Already one of us? "}
-            <span
-              style={styles.link}
-              onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}
-            >
-              {mode === "login" ? "Join us." : "Enter the Lair."}
-            </span>
-          </p>
-        </div>
+            <p style={styles.foot}>
+              <span
+                style={styles.link}
+                onClick={() => { setView("landing"); setError(""); }}
+              >
+                ← Back
+              </span>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -162,8 +176,21 @@ const styles = {
     pointerEvents: "none",
     zIndex: 0,
   },
-  leftInner: {
+  center: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "2rem 1.5rem",
+    position: "relative",
+    zIndex: 1,
+  },
+  landingInner: {
     maxWidth: "420px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   logoMark: {
     display: "flex",
@@ -183,20 +210,13 @@ const styles = {
     color: "var(--balloon-red)",
     lineHeight: 1,
   },
-  accent: {
-    width: "40px",
-    height: "3px",
-    background: "var(--balloon-red)",
-    marginBottom: "2rem",
-  },
   bigTitle: {
     fontFamily: "var(--font-horror)",
-    fontSize: "clamp(3rem, 5.5vw, 5rem)",
+    fontSize: "clamp(2.5rem, 10vw, 5rem)",
     color: "var(--dirty-white)",
     letterSpacing: "0.2em",
     lineHeight: 1,
     marginBottom: "1.5rem",
-    whiteSpace: "nowrap",
   },
   leftTag: {
     fontFamily: "var(--font-mono)",
@@ -209,6 +229,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "0.75rem",
+    marginBottom: "3rem",
   },
   metaItem: {
     fontFamily: "var(--font-mono)",
@@ -218,6 +239,13 @@ const styles = {
   },
   metaDot: {
     color: "var(--border)",
+  },
+  landingBtns: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+    width: "100%",
+    maxWidth: "280px",
   },
   card: {
     width: "100%",
@@ -317,8 +345,22 @@ const styles = {
     transition: "background 0.2s, opacity 0.2s",
     width: "100%",
   },
+  btnOutline: {
+    background: "transparent",
+    border: "1px solid var(--balloon-red)",
+    borderRadius: 0,
+    color: "var(--balloon-red)",
+    fontFamily: "var(--font-horror)",
+    fontSize: "1.1rem",
+    letterSpacing: "0.2em",
+    padding: "0.9rem",
+    cursor: "pointer",
+    transition: "background 0.2s, color 0.2s",
+    width: "100%",
+  },
   foot: {
     marginTop: "1.5rem",
+    textAlign: "center",
     fontFamily: "var(--font-mono)",
     fontSize: "0.72rem",
     color: "var(--muted)",

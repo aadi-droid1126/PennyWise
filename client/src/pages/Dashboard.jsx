@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
+import StreakBadge from "../components/features/StreakBadge";
+import BottomNav from "../components/BottomNav";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -84,7 +86,7 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <div style={styles.content}>
+        <div style={{ ...styles.content, paddingBottom: "76px" }}>
           {/* Page Header */}
           <div style={styles.pageHeader}>
             <div style={styles.pageHeaderLeft}>
@@ -116,6 +118,7 @@ const Dashboard = () => {
               <span style={{ ...styles.statValue, color: "#4caf50" }}>{fmt(summary?.income)}</span>
               <span style={styles.statTag}>Total income</span>
             </div>
+            <StreakBadge />
           </div>
 
           {/* Bottom Grid */}
@@ -154,6 +157,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <BottomNav />
 
       <style>{`
         @media (min-width: 768px) {

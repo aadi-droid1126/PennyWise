@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import BottomNav from "./BottomNav";
 
 const navItems = [
-  { label: "The Lair",      path: "/dashboard",    icon: "⬡" },
-  { label: "Losers' Log",   path: "/transactions", icon: "≡" },
-  { label: "Sewer Map",     path: "/analytics",    icon: "◎" },
-  { label: "The Ritual",    path: "/recurring",    icon: "↻" },
-  { label: "Escape From Derry",  path: "/goals",        icon: "◈" },
-  { label: "Case File",     path: "/export",       icon: "⊞" },
+  { label: "The Lair", path: "/dashboard", icon: "⬡" },
+  { label: "Losers' Log", path: "/transactions", icon: "≡" },
+  { label: "Sewer Map", path: "/analytics", icon: "◎" },
+  { label: "The Ritual", path: "/recurring", icon: "↻" },
+  { label: "Escape From Derry", path: "/goals", icon: "◈" },
+  { label: "Case File", path: "/export", icon: "⊞" },
 ];
 
 const Layout = ({ children }) => {
@@ -102,8 +103,10 @@ const Layout = ({ children }) => {
           </div>
         </header>
 
-        <div style={styles.content}>{children}</div>
+        <div style={{ ...styles.content, paddingBottom: "76px" }}>{children}</div>
       </div>
+
+      <BottomNav />
 
       <style>{`
         @media (min-width: 768px) {
