@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       const allowedOrigins = [
-        "https://pennywise-gv7h.onrender.com",
+        "https://pennywise-k9xa.onrender.com",
       ];
       if (
         !origin ||
@@ -60,7 +60,7 @@ app.use(errorHandler);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("🎈🃏 Connected to MongoDB — entered the sewer");
+    console.log("🎈 Connected to MongoDB — entered the sewer");
     app.listen(process.env.PORT || 5000, () => {
       console.log(
         `🩸 Pennywise server running on port ${process.env.PORT || 5000}`,
