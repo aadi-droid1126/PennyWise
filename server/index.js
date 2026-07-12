@@ -11,6 +11,7 @@ const errorHandler = require("./middleware/errorHandler");
 const { globalLimiter, authLimiter } = require("./middleware/rateLimiter");
 const exportRoutes = require("./routes/export");
 const insightRoutes = require("./routes/insights");
+const recurringRoutes = require("./routes/recurring");
 
 dotenv.config({ path: "../.env" });
 
@@ -66,6 +67,7 @@ app.use("/api/budgets", budgetRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/insights", insightRoutes);
+app.use("/api/recurring", recurringRoutes);
 
 // Error handler
 app.use(errorHandler);
