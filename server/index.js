@@ -41,7 +41,6 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 // Explicitly handle preflight for all routes so OPTIONS never falls through
-app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
