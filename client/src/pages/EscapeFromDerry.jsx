@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
 import Layout from "../components/Layout";
+import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
 function EscapeFromDerry() {
+  const { speak } = usePennywiseVoice();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -33,23 +35,28 @@ function EscapeFromDerry() {
   const handleSubmit = async () => {
     if (!form.title || !form.targetAmount) return;
     try {
+      const target = parseFloat(form.targetAmount);
+      const saved = parseFloat(form.savedAmount) || 0;
+      const isComplete = saved >= target;
+
       if (editGoal) {
         await api.put(`/goals/${editGoal._id}`, {
           ...form,
-          targetAmount: parseFloat(form.targetAmount),
-          savedAmount: parseFloat(form.savedAmount) || 0,
+          targetAmount: target,
+          savedAmount: saved,
         });
       } else {
         await api.post("/goals", {
           ...form,
-          targetAmount: parseFloat(form.targetAmount),
-          savedAmount: parseFloat(form.savedAmount) || 0,
+          targetAmount: target,
+          savedAmount: saved,
         });
       }
       setForm({ title: "", targetAmount: "", savedAmount: "", deadline: "" });
       setShowForm(false);
       setEditGoal(null);
       fetchGoals();
+      speak(isComplete ? "goalcomplete" : "goals");
     } catch (err) {
       console.error(err);
     }

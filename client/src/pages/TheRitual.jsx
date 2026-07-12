@@ -4,6 +4,7 @@ import api from "../services/api";
 import { fmt } from "../utils/formatters";
 import { fmtDate, today } from "../utils/dateHelpers";
 import PennywiseRoast from "../components/features/PennywiseRoast";
+import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
 
 const CATEGORIES = [
   "food", "transport", "entertainment", "health",
@@ -19,6 +20,7 @@ const FREQUENCIES = [
 ];
 
 const TheRitual = () => {
+  const { speak } = usePennywiseVoice();
   const [rituals, setRituals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -71,6 +73,7 @@ const TheRitual = () => {
       });
       setShowForm(false);
       await fetchRituals();
+      speak("ritual");
     } catch (err) {
       setError(err?.response?.data?.message || "IT rejected the ritual.");
     } finally {
@@ -332,8 +335,8 @@ const TheRitual = () => {
                   </button>
                 </div>
                 <div className="mb-6">
-                <PennywiseRoast context="ritual" />
-              </div>
+                  <PennywiseRoast context="ritual" />
+                </div>
               </div>
             ))}
           </div>

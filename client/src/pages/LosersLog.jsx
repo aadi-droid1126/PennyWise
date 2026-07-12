@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
+import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
 
 const CATEGORIES = ["food", "transport", "entertainment", "health", "shopping", "utilities", "rent", "salary", "freelance", "investment", "other"];
 
 const LosersLog = () => {
+  const { speak } = usePennywiseVoice();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
@@ -35,9 +37,11 @@ const LosersLog = () => {
     setSubmitting(true);
     try {
       await api.post("/transactions", { ...form, amount: Number(form.amount) });
+      const wasExpense = form.type === "expense";
       setForm({ type: "expense", amount: "", category: "food", description: "", date: new Date().toISOString().split("T")[0] });
       setShowForm(false);
       await fetchTransactions();
+      speak(wasExpense ? "newexpense" : "newincome");
     } catch (err) { setError(err?.response?.data?.message || "IT refused your entry."); }
     finally { setSubmitting(false); }
   };

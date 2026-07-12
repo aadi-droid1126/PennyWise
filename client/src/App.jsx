@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { PennywiseVoiceProvider } from "./context/PennywiseVoiceContext";
+import { PennywiseVoiceIndicator } from "./components/features/PennywiseVoice";
 
 import TheLair from "./pages/TheLair";
 import LosersLog from "./pages/LosersLog";
@@ -25,20 +27,25 @@ const PublicRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/login" element={<PublicRoute><TheLair /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><TheLair /></PublicRoute>} />
+    <PennywiseVoiceProvider>
+      <Routes>
+        <Route path="/login" element={<PublicRoute><TheLair /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><TheLair /></PublicRoute>} />
 
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/transactions" element={<ProtectedRoute><LosersLog /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><SewerMap /></ProtectedRoute>} />
-      <Route path="/recurring" element={<ProtectedRoute><TheRitual /></ProtectedRoute>} />
-      <Route path="/goals" element={<ProtectedRoute><EscapeFromDerry /></ProtectedRoute>} />
-      <Route path="/export" element={<ProtectedRoute><TheCaseFile /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/transactions" element={<ProtectedRoute><LosersLog /></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><SewerMap /></ProtectedRoute>} />
+        <Route path="/recurring" element={<ProtectedRoute><TheRitual /></ProtectedRoute>} />
+        <Route path="/goals" element={<ProtectedRoute><EscapeFromDerry /></ProtectedRoute>} />
+        <Route path="/export" element={<ProtectedRoute><TheCaseFile /></ProtectedRoute>} />
 
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+
+      {/* Pennywise speaks on his own here — no click required */}
+      <PennywiseVoiceIndicator />
+    </PennywiseVoiceProvider>
   );
 };
 
