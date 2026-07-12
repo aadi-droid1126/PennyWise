@@ -1,25 +1,23 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { speakAsPennywise, stopSpeaking } from "../../utils/voiceNarrator";
+import { usePennywiseVoice } from "../../context/PennywiseVoiceContext";
 
-export default function PennywiseVoice({ text, label = "Hear IT 🎈" }) {
-  const [speaking, setSpeaking] = useState(false);
+// Manual button — still usable anywhere you want an explicit "Hear IT" trigger
+export function PennywiseVoiceButton({ context = "dashboard", label = "Hear IT 🎈" }) {
+  const { speak, stop, speaking } = usePennywiseVoice();
 
-  const handleSpeak = () => {
+  const handleClick = () => {
     if (speaking) {
-      stopSpeaking();
-      setSpeaking(false);
-      return;
+      stop();
+    } else {
+      speak(context);
     }
-    setSpeaking(true);
-    speakAsPennywise(text, () => setSpeaking(false));
   };
 
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      onClick={handleSpeak}
+      onClick={handleClick}
       className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold"
       style={{
         background: speaking ? "var(--crimson)" : "var(--sewer-black)",
@@ -38,3 +36,40 @@ export default function PennywiseVoice({ text, label = "Hear IT 🎈" }) {
     </motion.button>
   );
 }
+
+// Passive indicator — shows automatically whenever Pennywise speaks on his own,
+// no click required. Drop this once in Layout.jsx so it's visible everywhere.
+export function PennywiseVoiceIndicator() {
+  const { speaking, stop, lastLine } = usePennywiseVoice();
+
+  if (!speaking) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      onClick={stop}
+      className="fixed bottom-20 md:bottom-6 right-4 max-w-xs px-4 py-3 rounded-lg cursor-pointer z-50"
+      style={{
+        background: "var(--sewer-black)",
+        border: "1px solid var(--balloon-red)",
+        color: "var(--balloon-red)",
+      }}
+      title="Tap to stop IT"
+    >
+      <div className="flex items-center gap-2">
+        <motion.span
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ repeat: Infinity, duration: 0.8 }}
+        >
+          🎈
+        </motion.span>
+        <span className="text-xs font-semibold">IT is speaking...</span>
+      </div>
+      {lastLine && <p className="text-xs mt-1 opacity-80">{lastLine}</p>}
+    </motion.div>
+  );
+}
+
+export default PennywiseVoiceButton;
