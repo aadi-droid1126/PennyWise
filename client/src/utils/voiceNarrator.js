@@ -22,17 +22,18 @@ const fixPronunciation = (text) => {
 
 // Split on sentence-enders and commas, keeping the punctuation attached
 // so we know how long to pause after each chunk.
+// Split only on sentence-enders. Splitting on commas too created a
+// noticeable pause every few words, which felt sluggish rather than dramatic.
 const splitIntoClauses = (text) => {
-  const raw = text.match(/[^.!?,]+[.!?,]?/g) || [text];
+  const raw = text.match(/[^.!?]+[.!?]?/g) || [text];
   return raw
     .map((s) => s.trim())
     .filter(Boolean);
 };
 
 const pauseFor = (clause) => {
-  if (/[.!?]$/.test(clause)) return 380; // end of sentence — longer beat
-  if (/,$/.test(clause)) return 160; // mid-sentence comma — short beat
-  return 90;
+  if (/[.!?]$/.test(clause)) return 150; // end of sentence — brief beat
+  return 30;
 };
 
 let cachedVoices = [];
