@@ -17,15 +17,12 @@ dotenv.config({ path: "../.env" });
 const app = express();
 
 // Middleware
-const allowedOrigins = [
-  "https://pennywise-gv7h.onrender.com",
-  "https://pennywise-n9em.onrender.com",
-  process.env.FRONTEND_URL, // set this in Render env vars
-].filter(Boolean);
-
 app.use(
   cors({
     origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://pennywise-gv7h.onrender.com",
+      ];
       if (
         !origin ||
         origin.startsWith("http://localhost:") ||
@@ -63,7 +60,7 @@ app.use(errorHandler);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("🎈 Connected to MongoDB — entered the sewer");
+    console.log("🎈🃏 Connected to MongoDB — entered the sewer");
     app.listen(process.env.PORT || 5000, () => {
       console.log(
         `🩸 Pennywise server running on port ${process.env.PORT || 5000}`,
