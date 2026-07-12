@@ -9,7 +9,7 @@ A **production-style expense tracker named PennyWise** built with the MERN stack
 
 Designed as a **portfolio-grade full-stack system** showcasing AI integration, secure authentication, and a distinctive, memorable UX identity.
 
-**🔗 Live Demo:** [pennywise-gv7h.onrender.com](https://pennywise-gv7h.onrender.com)
+**🔗 Live Demo:** [pennywise-k9xa.onrender.com](https://pennywise-k9xa.onrender.com)
 
 ---
 
@@ -18,6 +18,7 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 ### 👤 Authentication & Security
 
 - JWT-based authentication via httpOnly cookies
+- Cross-origin cookie auth configured for separate frontend/backend Render deployments (`sameSite: "none"`, `secure: true` in production)
 - Protected routes & API guards
 - Rate limiting middleware
 
@@ -41,7 +42,6 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - **Mobile bottom navigation** — 5-icon tab bar with a center FAB, fully independent of desktop layout
 - Fully horror-themed naming conventions throughout (Floaters, The Lair, The Ritual, Sewer Map)
 - Responsive, dark-mode-first, mobile-first design
-- Installable as a PWA (manifest + icon set)
 
 ---
 
@@ -54,6 +54,7 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - Groq SDK integration for AI-generated, context-aware responses
 - Shared `Layout` component driving consistent navigation (sidebar + bottom nav) across every authenticated page
 - Clean separation of frontend & backend concerns
+- `/health` endpoint on the backend for deploy verification (server + MongoDB connection status)
 
 ---
 
@@ -158,6 +159,19 @@ PennyWise
 - Demonstrates **full-stack ownership** across auth, data modeling, AI integration, and deployment
 - Portfolio-focused **clean, distinctively themed codebase**
 - Deployed and live on Render, with automatic redeploys on every commit
+- Debugged and resolved cross-origin auth issues specific to deploying frontend and backend as separate services (CORS preflight, cookie `SameSite` policy, Express 5 routing changes)
+
+---
+
+## ⚠️ Known Issues / In Progress
+
+Being transparent about current gaps rather than overstating what's shipped:
+
+- [ ] PWA install experience needs verification (manifest/icon config)
+- [ ] Tailwind CSS registration needs a final check to confirm all utility classes are building correctly in production
+- [ ] Budget-setting UI (creating/editing a budget from the frontend) is incomplete
+- [ ] Recurring expenses: backend routes not yet implemented
+- [ ] General cleanup pass for dead code
 
 ---
 
@@ -194,11 +208,19 @@ cd ../client && npm install
 Create a `.env` file inside `server/` (use `.env.example` as reference):
 
 ```
-MONGODB_URI=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 GROQ_API_KEY=your_groq_api_key
 PORT=5000
 ```
+
+Create a `.env` file inside `client/`:
+
+```
+VITE_API_URL=http://localhost:5000
+```
+
+> Never commit either `.env` file to version control.
 
 ### 4️⃣ Run Locally
 
@@ -212,6 +234,16 @@ npm run dev
 
 Client runs on `http://localhost:5173` and proxies API requests to the server.
 
+### 5️⃣ Verify the Backend
+
+Once running, check:
+
+```
+GET http://localhost:5000/health
+```
+
+Should return `{ "status": "ok", "mongoConnected": true }`.
+
 ---
 
 ## ☁️ Deployment
@@ -222,6 +254,10 @@ Deployed as two separate services on Render:
 - **Frontend** (`client/`) — Static Site, build with `npm run build`, publish directory `dist`
 
 Set the same variables from `.env` in your hosting provider's dashboard — never commit `.env` to version control. MongoDB Atlas Network Access must allow the backend's outbound IP (or `0.0.0.0/0` for simplicity). The static site includes a catch-all rewrite (`/*` → `/index.html`) so client-side routes survive a page refresh.
+
+**Cross-origin note:** because the frontend and backend run on different Render domains, auth cookies must be set with `sameSite: "none"` and `secure: true` in production for the browser to send them back on API requests. Locally, this falls back to `sameSite: "lax"` since both run over plain HTTP on `localhost`.
+
+Use `GET /health` on the deployed backend to confirm the server is live and MongoDB is connected before debugging frontend issues.
 
 ---
 
