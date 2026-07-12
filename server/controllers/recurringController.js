@@ -17,9 +17,9 @@ const getRecurring = async (req, res) => {
 // @POST /api/recurring
 const createRecurring = async (req, res) => {
   try {
-    const { type, title, amount, category, frequency, startDate } = req.body;
+    const { type, name, amount, category, frequency, startDate } = req.body;
 
-    if (!type || !title || !amount || !category || !frequency || !startDate) {
+    if (!type || !name || !amount || !category || !frequency || !startDate) {
       return res
         .status(400)
         .json({ message: "IT rejected the ritual. Fill every field." });
@@ -28,7 +28,7 @@ const createRecurring = async (req, res) => {
     const ritual = await Recurring.create({
       userId: req.user.id,
       type,
-      title,
+      name,
       amount,
       category,
       frequency,
