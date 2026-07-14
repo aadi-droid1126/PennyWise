@@ -32,8 +32,8 @@ const splitIntoClauses = (text) => {
 };
 
 const pauseFor = (clause) => {
-  if (/[.!?]$/.test(clause)) return 60; // end of sentence — brief beat
-  return 10;
+  if (/[.!?]$/.test(clause)) return 150; // end of sentence — brief beat
+  return 30;
 };
 
 let cachedVoices = [];
@@ -127,7 +127,7 @@ export const speakAsPennywise = async (text, onEnd) => {
 
     if (voice) utterance.voice = voice;
     utterance.pitch = wobble(0.32, 0.06); // deep, with slight variance per clause
-    utterance.rate = wobble(1.15, 0.05); // brisk, constant flow — not slow/deliberate
+    utterance.rate = wobble(0.78, 0.05); // slow and deliberate, not uniform
     utterance.volume = 1;
 
     utterance.onend = () => {
