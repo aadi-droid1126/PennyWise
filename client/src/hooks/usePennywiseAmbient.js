@@ -3,9 +3,13 @@ import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
 import api from "../services/api";
 
 // Random ambient mockery — fires on its own every so often, no trigger needed.
-const AMBIENT_MIN_MS = 90 * 1000; // 1.5 min
-const AMBIENT_MAX_MS = 4 * 60 * 1000; // 4 min
-const AMBIENT_CHANCE = 0.4; // only a 40% chance each time the timer fires
+//
+// TESTING MODE: fast interval, high chance, so you can verify it's firing
+// without waiting minutes. Once confirmed, switch back to the PROD values
+// commented below.
+const AMBIENT_MIN_MS = 15 * 1000; // TEST: 15s   |  PROD: 90 * 1000 (1.5 min)
+const AMBIENT_MAX_MS = 30 * 1000; // TEST: 30s   |  PROD: 4 * 60 * 1000 (4 min)
+const AMBIENT_CHANCE = 0.9;       // TEST: 90%   |  PROD: 0.4 (40%)
 
 export const usePennywiseAmbient = () => {
   const { speak, speaking } = usePennywiseVoice();
