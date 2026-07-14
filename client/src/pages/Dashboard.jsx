@@ -5,8 +5,10 @@ import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
 import StreakBadge from "../components/features/StreakBadge";
 import BottomNav from "../components/BottomNav";
+import { usePennywiseAmbient } from "../hooks/usePennywiseAmbient";
 
 const Dashboard = () => {
+  usePennywiseAmbient();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
