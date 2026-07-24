@@ -1,5 +1,20 @@
 const Budget = require("../models/Budget");
 
+// @GET /api/budgets — all budgets for the logged-in user
+const getBudgets = async (req, res) => {
+  try {
+    const budgets = await Budget.find({ userId: req.user.id }).sort({
+      year: -1,
+      month: -1,
+    });
+    res.json(budgets);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Budget fetch failed.", error: err.message });
+  }
+};
+
 // @GET /api/budgets/:month/:year
 const getBudget = async (req, res) => {
   try {
@@ -22,31 +37,30 @@ const getBudget = async (req, res) => {
   }
 };
 
-// @POST /api/budgets
+// @POST /api/budgets — creates the month's doc if none exists, otherwise
+// merges the incoming category limit into the existing doc instead of
+// rejecting with a duplicate error.
 const createBudget = async (req, res) => {
   try {
     const { month, year, limits } = req.body;
 
-    const existing = await Budget.findOne({ userId: req.user.id, month, year });
-    if (existing)
-      return res
-        .status(400)
-        .json({
-          message: "Deadlights already set for this month. Update instead.",
-        });
+    let budget = await Budget.findOne({ userId: req.user.id, month, year });
 
-    const budget = await Budget.create({
-      userId: req.user.id,
-      month,
-      year,
-      limits,
+    if (!budget) {
+      budget = await Budget.create({ userId: req.user.id, month, year, limits });
+      return res
+        .status(201)
+        .json({ message: "Deadlights set. IT is watching your spending. 🎈", budget });
+    }
+
+    (limits || []).forEach((incoming) => {
+      const idx = budget.limits.findIndex((l) => l.category === incoming.category);
+      if (idx >= 0) budget.limits[idx].amount = incoming.amount;
+      else budget.limits.push(incoming);
     });
-    res
-      .status(201)
-      .json({
-        message: "Deadlights set. IT is watching your spending. 🎈",
-        budget,
-      });
+
+    await budget.save();
+    res.json({ message: "Deadlights updated. IT never forgets. 🎈", budget });
   } catch (err) {
     res
       .status(500)
@@ -72,4 +86,21 @@ const updateBudget = async (req, res) => {
   }
 };
 
-module.exports = { getBudget, createBudget, updateBudget };
+// @DELETE /api/budgets/:id
+const deleteBudget = async (req, res) => {
+  try {
+    const budget = await Budget.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (!budget) return res.status(404).json({ message: "Budget not found." });
+    res.json({ message: "Deadlight lifted." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Budget delete failed.", error: err.message });
+  }
+};
+
+module.exports = { getBudgets, getBudget, createBudget, updateBudget, deleteBudget };

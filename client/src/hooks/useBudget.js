@@ -28,6 +28,11 @@ export const useBudget = () => {
     await fetch();
   };
 
+  const updateBudget = async (id, payload) => {
+    await api.put(`/budgets/${id}`, payload);
+    await fetch();
+  };
+
   const deleteBudget = async (id) => {
     await api.delete(`/budgets/${id}`);
     setBudgets((prev) => prev.filter((b) => b._id !== id));
@@ -39,6 +44,7 @@ export const useBudget = () => {
     error,
     refetch: fetch,
     addBudget,
+    updateBudget,
     deleteBudget,
   };
 };

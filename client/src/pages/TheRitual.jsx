@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Layout from "../components/Layout";
-import api from "../services/api";
 import { fmt } from "../utils/formatters";
 import { fmtDate, today } from "../utils/dateHelpers";
 import PennywiseRoast from "../components/features/PennywiseRoast";
 import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
+import { useRecurring } from "../hooks/useRecurring";
 
 const CATEGORIES = [
   "food", "transport", "entertainment", "health",
@@ -21,8 +21,7 @@ const FREQUENCIES = [
 
 const TheRitual = () => {
   const { speak } = usePennywiseVoice();
-  const [rituals, setRituals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { rituals, loading, addRitual, deleteRitual } = useRecurring();
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -37,22 +36,6 @@ const TheRitual = () => {
     startDate: today(),
   });
 
-  useEffect(() => {
-    fetchRituals();
-  }, []);
-
-  const fetchRituals = async () => {
-    setLoading(true);
-    try {
-      const { data } = await api.get("/recurring");
-      setRituals(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async () => {
     setError("");
     if (!form.name.trim()) { setError("Name the ritual."); return; }
@@ -62,7 +45,7 @@ const TheRitual = () => {
     }
     setSubmitting(true);
     try {
-      await api.post("/recurring", { ...form, amount: Number(form.amount) });
+      await addRitual({ ...form, amount: Number(form.amount) });
       setForm({
         name: "",
         amount: "",
@@ -72,7 +55,6 @@ const TheRitual = () => {
         startDate: today(),
       });
       setShowForm(false);
-      await fetchRituals();
       speak("ritual");
     } catch (err) {
       setError(err?.response?.data?.message || "IT rejected the ritual.");
@@ -84,8 +66,7 @@ const TheRitual = () => {
   const handleDelete = async (id) => {
     setDeleting(id);
     try {
-      await api.delete(`/recurring/${id}`);
-      setRituals((prev) => prev.filter((r) => r._id !== id));
+      await deleteRitual(id);
     } catch (err) {
       console.error(err);
     } finally {

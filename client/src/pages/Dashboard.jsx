@@ -5,6 +5,7 @@ import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
 import StreakBadge from "../components/features/StreakBadge";
 import BottomNav from "../components/BottomNav";
+import StatCard from "../components/ui/StatCard";
 import { usePennywiseAmbient } from "../hooks/usePennywiseAmbient";
 
 const Dashboard = () => {
@@ -49,6 +50,7 @@ const Dashboard = () => {
     { label: "Sewer Map", path: "/analytics", icon: "◎" },
     { label: "The Ritual", path: "/recurring", icon: "↻" },
     { label: "Escape Derry", path: "/goals", icon: "◈" },
+    { label: "Deadlights", path: "/budgets", icon: "▣" },
     { label: "Case File", path: "/export", icon: "⊞" },
   ];
 
@@ -105,21 +107,9 @@ const Dashboard = () => {
 
           {/* Stats */}
           <div style={styles.statsGrid}>
-            <div style={styles.statCard}>
-              <span style={styles.statLabel}>BALANCE</span>
-              <span style={styles.statValue}>{fmt(summary?.balance)}</span>
-              <span style={styles.statTag}>Total left in the sewer</span>
-            </div>
-            <div style={{ ...styles.statCard, ...styles.statCardRed }}>
-              <span style={styles.statLabel}>FLOATERS</span>
-              <span style={{ ...styles.statValue, color: "var(--balloon-red)" }}>{fmt(summary?.expenses)}</span>
-              <span style={styles.statTag}>Total expenses</span>
-            </div>
-            <div style={{ ...styles.statCard, ...styles.statCardGreen }}>
-              <span style={styles.statLabel}>SURVIVORS</span>
-              <span style={{ ...styles.statValue, color: "#4caf50" }}>{fmt(summary?.income)}</span>
-              <span style={styles.statTag}>Total income</span>
-            </div>
+            <StatCard label="BALANCE" value={fmt(summary?.balance)} tag="Total left in the sewer" raw />
+            <StatCard label="FLOATERS" value={fmt(summary?.expenses)} tag="Total expenses" variant="red" raw />
+            <StatCard label="SURVIVORS" value={fmt(summary?.income)} tag="Total income" variant="green" raw />
             <StreakBadge />
           </div>
 

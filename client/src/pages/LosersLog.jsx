@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Layout from "../components/Layout";
-import api from "../services/api";
 import PennywiseRoast from "../components/features/PennywiseRoast";
+import TransactionRow from "../components/features/TransactionRow";
 import { usePennywiseVoice } from "../context/PennywiseVoiceContext";
+import { useTransactions } from "../hooks/useTransactions";
 
 const CATEGORIES = ["food", "transport", "entertainment", "health", "shopping", "utilities", "rent", "salary", "freelance", "investment", "other"];
 
 const LosersLog = () => {
   const { speak } = usePennywiseVoice();
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { transactions, loading, addTransaction, deleteTransaction } = useTransactions();
   const [deleting, setDeleting] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -20,27 +20,15 @@ const LosersLog = () => {
     type: "expense", amount: "", category: "food", description: "", date: new Date().toISOString().split("T")[0],
   });
 
-  useEffect(() => { fetchTransactions(); }, []);
-
-  const fetchTransactions = async () => {
-    setLoading(true);
-    try {
-      const { data } = await api.get("/transactions");
-      setTransactions(data);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
-
   const handleSubmit = async () => {
     setError("");
     if (!form.amount || isNaN(form.amount) || Number(form.amount) <= 0) { setError("Enter a valid amount."); return; }
     setSubmitting(true);
     try {
-      await api.post("/transactions", { ...form, amount: Number(form.amount) });
+      await addTransaction({ ...form, amount: Number(form.amount) });
       const wasExpense = form.type === "expense";
       setForm({ type: "expense", amount: "", category: "food", description: "", date: new Date().toISOString().split("T")[0] });
       setShowForm(false);
-      await fetchTransactions();
       speak(wasExpense ? "newexpense" : "newincome");
     } catch (err) { setError(err?.response?.data?.message || "IT refused your entry."); }
     finally { setSubmitting(false); }
@@ -49,13 +37,10 @@ const LosersLog = () => {
   const handleDelete = async (id) => {
     setDeleting(id);
     try {
-      await api.delete(`/transactions/${id}`);
-      setTransactions((prev) => prev.filter((tx) => tx._id !== id));
+      await deleteTransaction(id);
     } catch (err) { console.error(err); }
     finally { setDeleting(null); }
   };
-
-  const fmt = (n) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n || 0);
 
   const filtered = transactions.filter((tx) => {
     if (filterType !== "all" && tx.type !== filterType) return false;
@@ -159,28 +144,7 @@ const LosersLog = () => {
               <span style={{ ...styles.colHeader, width: "40px" }} />
             </div>
             {filtered.map((tx, i) => (
-              <div key={tx._id} style={{ ...styles.txRow, ...(i === filtered.length - 1 ? { borderBottom: "none" } : {}) }}>
-                <div style={{ ...styles.txCell, flex: 2 }}>
-                  <div style={styles.txTopRow}>
-                    <span style={{ ...styles.typePill, background: tx.type === "expense" ? "rgba(139,0,0,0.3)" : "rgba(10,42,10,0.5)", color: tx.type === "expense" ? "var(--balloon-red)" : "#4caf50", borderColor: tx.type === "expense" ? "#3a0000" : "#0a2a0a" }}>
-                      {tx.type === "expense" ? "FLOATER" : "SURVIVOR"}
-                    </span>
-                    <span style={styles.txCategory}>{tx.category}</span>
-                  </div>
-                  {(tx.note || tx.description) && <span style={styles.txNote}>{tx.note || tx.description}</span>}
-                </div>
-                <div style={{ ...styles.txCell, flex: 1 }}>
-                  <span style={styles.txDate}>{new Date(tx.date || tx.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>
-                </div>
-                <div style={{ ...styles.txCell, flex: 1, alignItems: "flex-end" }}>
-                  <span style={{ ...styles.txAmount, color: tx.type === "expense" ? "var(--balloon-red)" : "#4caf50" }}>
-                    {tx.type === "expense" ? "-" : "+"}{fmt(tx.amount)}
-                  </span>
-                </div>
-                <div style={{ width: "40px", display: "flex", justifyContent: "flex-end" }}>
-                  <button style={{ ...styles.deleteBtn, opacity: deleting === tx._id ? 0.4 : 1 }} onClick={() => handleDelete(tx._id)} disabled={deleting === tx._id} title="Delete">✕</button>
-                </div>
-              </div>
+              <TransactionRow key={tx._id} tx={tx} onDelete={handleDelete} isLast={i === filtered.length - 1} />
             ))}
           </div>
         )}
@@ -221,15 +185,6 @@ const styles = {
   panel: { background: "var(--card-bg)", border: "1px solid var(--border)" },
   tableHeader: { display: "flex", alignItems: "center", padding: "0.6rem 1.25rem", borderBottom: "1px solid var(--border)", background: "var(--sewer-black)" },
   colHeader: { fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "var(--muted)", letterSpacing: "0.15em", textTransform: "uppercase" },
-  txRow: { display: "flex", alignItems: "center", padding: "0.85rem 1.25rem", borderBottom: "1px solid var(--border)", gap: "0.75rem" },
-  txCell: { display: "flex", flexDirection: "column", gap: "0.2rem", minWidth: 0 },
-  txTopRow: { display: "flex", alignItems: "center", gap: "0.5rem" },
-  typePill: { fontFamily: "var(--font-mono)", fontSize: "0.55rem", letterSpacing: "0.1em", padding: "0.15rem 0.4rem", border: "1px solid", flexShrink: 0 },
-  txCategory: { fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "var(--dirty-white)", fontWeight: 500, textTransform: "capitalize", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
-  txNote: { fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
-  txDate: { fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--muted)" },
-  txAmount: { fontFamily: "var(--font-mono)", fontSize: "0.9rem", fontWeight: 600, letterSpacing: "0.05em" },
-  deleteBtn: { background: "none", border: "none", color: "var(--muted)", fontSize: "0.7rem", cursor: "pointer", padding: "0.25rem", lineHeight: 1 },
   empty: { fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--muted)", textAlign: "center", padding: "3rem 0" },
 };
 

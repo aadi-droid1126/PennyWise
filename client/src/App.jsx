@@ -9,6 +9,7 @@ import SewerMap from "./pages/SewerMap";
 import TheRitual from "./pages/TheRitual";
 import EscapeFromDerry from "./pages/EscapeFromDerry";
 import TheCaseFile from "./pages/TheCaseFile";
+import TheDeadlights from "./pages/TheDeadlights";
 import Dashboard from "./pages/Dashboard";
 
 const loadingScreenStyle = {
@@ -61,6 +62,7 @@ const App = () => {
         <Route path="/recurring" element={<ProtectedRoute><TheRitual /></ProtectedRoute>} />
         <Route path="/goals" element={<ProtectedRoute><EscapeFromDerry /></ProtectedRoute>} />
         <Route path="/export" element={<ProtectedRoute><TheCaseFile /></ProtectedRoute>} />
+        <Route path="/budgets" element={<ProtectedRoute><TheDeadlights /></ProtectedRoute>} />
 
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
