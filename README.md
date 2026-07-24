@@ -5,7 +5,7 @@
 
 # 🎈 PennyWise — Horror-Themed MERN Expense Tracker
 
-A **production-style expense tracker named PennyWise** built with the MERN stack, wrapped in an IT-inspired horror aesthetic. Track spending, savings goals, and budgets while getting sarcastically roasted by an AI clown for your financial decisions.
+A **production-style expense tracker named PennyWise** built with the MERN stack, wrapped in an IT-inspired horror aesthetic. Track spending, savings goals, budgets, and recurring bills while getting sarcastically roasted by an AI clown for your financial decisions.
 
 Designed as a **portfolio-grade full-stack system** showcasing AI integration, secure authentication, and a distinctive, memorable UX identity.
 
@@ -20,27 +20,31 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - JWT-based authentication via httpOnly cookies
 - Cross-origin cookie auth configured for separate frontend/backend Render deployments (`sameSite: "none"`, `secure: true` in production)
 - Protected routes & API guards
-- Rate limiting middleware
+- Tiered rate limiting — a global cap, a stricter cap on auth endpoints (brute-force protection), and a dedicated cap on AI-roast requests (Groq cost control)
 
 ### 🎈 Expense & Goal Tracking
 
 - Expense logging ("Floaters") categorized and tracked in INR (₹)
-- Savings goals ("Escape from Derry") with animated balloon progress visuals
-- Budget tracking with visual budget bars that flag "IT Whispers" at 80% and over-budget
+- Savings goals ("Escape from Derry") with progress bars and Framer Motion transitions
+- Budget limits ("The Deadlights") — set, edit, and remove per-category monthly limits from the UI; bars shift color at 80% utilization and flag "IT Whispers" once a category goes over
+- Recurring payments ("The Ritual") — schedule recurring expenses or income by frequency (daily/weekly/monthly/yearly), with rolled-up monthly drain/flow totals
 - **Days Since IT Appeared** — streak counter tracking consecutive days of logged activity
 
 ### 🤡 AI-Powered Roasts
 
 - Context-aware, sarcastic spending commentary powered by Groq (`llama-3.3-70b-versatile`)
-- Voice narration via the Web Speech API (low pitch, slow rate, extra menace)
-- Roasts adapt to dashboard, goals, and transaction context
+- Ambient, unprompted narration — Pennywise speaks on his own on a randomized interval, plus event-triggered lines for a low balance, an exceeded budget, a new expense/income entry, or a completed goal
+- Voice narration via the Web Speech API — dynamic "scariest available voice" selection, clause-by-clause pacing, and per-line pitch/rate variation so it doesn't sound robotic
+- Falls back to a curated pool of pre-written lines per context if the Groq call fails, so there's always something to say
+- Roasts and voice lines adapt across the dashboard, transactions, goals, recurring payments, budgets, and export flows
 
 ### ✨ Premium UX Features
 
 - Framer Motion micro-interactions & animations
 - **Dual export** — download transaction history as CSV or a generated PDF case file (via jsPDF)
+- **Multi-chart analytics** ("Sewer Map") — category breakdown, income vs. expenses, and balance-over-time via Recharts
 - **Mobile bottom navigation** — 5-icon tab bar with a center FAB, fully independent of desktop layout
-- Fully horror-themed naming conventions throughout (Floaters, The Lair, The Ritual, Sewer Map)
+- Fully horror-themed naming conventions throughout (Floaters, The Lair, The Ritual, The Deadlights, Sewer Map)
 - Responsive, dark-mode-first, mobile-first design
 
 ---
@@ -50,9 +54,9 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - Modular Express architecture (controllers, routes, middleware, models)
 - RESTful API design
 - JWT auth with middleware guards
-- MongoDB relational modeling (Users ↔ Transactions ↔ Budgets ↔ Goals)
-- Groq SDK integration for AI-generated, context-aware responses
-- Shared `Layout` component driving consistent navigation (sidebar + bottom nav) across every authenticated page
+- MongoDB relational modeling (Users ↔ Transactions ↔ Budgets ↔ Recurring ↔ Savings Goals)
+- Groq SDK integration for AI-generated, context-aware responses, backed by a server-side prompt builder and a client-side fallback line pool so the feature degrades gracefully if the API call fails
+- Shared `Layout` component driving consistent navigation (sidebar + bottom nav) across most authenticated pages (Dashboard currently keeps its own copy — see Known Issues)
 - Clean separation of frontend & backend concerns
 - `/health` endpoint on the backend for deploy verification (server + MongoDB connection status)
 
@@ -63,8 +67,11 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 ### 🎨 Frontend
 
 - React (Vite)
+- React Router
 - Tailwind CSS
 - Framer Motion
+- Axios
+- Recharts
 - jsPDF (client-side PDF export)
 - Web Speech API (voice narration)
 
@@ -74,6 +81,7 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 - Express.js
 - MongoDB + Mongoose
 - JWT Authentication (httpOnly cookies)
+- express-rate-limit
 - Groq SDK (AI roasts)
 
 ### ☁️ Database
@@ -87,17 +95,21 @@ Designed as a **portfolio-grade full-stack system** showcasing AI integration, s
 ```
 PennyWise
 ├── .gitignore
-├── docker-compose.yml
+├── LICENSE
 ├── package.json
 ├── README.md
 ├── client
+│   ├── .gitignore
+│   ├── eslint.config.js
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── public
 │   │   ├── favicon.svg
+│   │   ├── icons.svg
 │   │   ├── manifest.json
 │   │   └── icons/
+│   │       └── icon.svg
 │   └── src
 │       ├── App.jsx
 │       ├── main.jsx
@@ -118,10 +130,13 @@ PennyWise
 │       │       ├── Panel.jsx
 │       │       └── StatCard.jsx
 │       ├── context
-│       │   └── AuthContext.jsx
+│       │   ├── AuthContext.jsx
+│       │   └── PennywiseVoiceContext.jsx
 │       ├── hooks
 │       │   ├── useBudget.js
 │       │   ├── useGoals.js
+│       │   ├── usePennywiseAmbient.js
+│       │   ├── useRecurring.js
 │       │   ├── useStreak.js
 │       │   └── useTransactions.js
 │       ├── pages
@@ -130,6 +145,7 @@ PennyWise
 │       │   ├── LosersLog.jsx
 │       │   ├── SewerMap.jsx
 │       │   ├── TheCaseFile.jsx
+│       │   ├── TheDeadlights.jsx
 │       │   ├── TheLair.jsx
 │       │   └── TheRitual.jsx
 │       ├── services
@@ -142,11 +158,34 @@ PennyWise
 └── server
     ├── index.js
     ├── package.json
-    ├── controllers/
-    ├── middleware/
-    ├── models/
-    ├── routes/
-    └── utils/
+    ├── controllers
+    │   ├── authController.js
+    │   ├── budgetController.js
+    │   ├── goalController.js
+    │   ├── insightController.js
+    │   ├── recurringController.js
+    │   └── transactionController.js
+    ├── middleware
+    │   ├── authMiddleware.js
+    │   ├── errorHandler.js
+    │   └── rateLimiter.js
+    ├── models
+    │   ├── Budget.js
+    │   ├── Recurring.js
+    │   ├── SavingsGoal.js
+    │   ├── Transaction.js
+    │   └── User.js
+    ├── routes
+    │   ├── auth.js
+    │   ├── budgets.js
+    │   ├── export.js
+    │   ├── goals.js
+    │   ├── insights.js
+    │   ├── recurring.js
+    │   └── transactions.js
+    └── utils
+        ├── aiPromptBuilder.js
+        └── csvGenerator.js
 ```
 
 ---
@@ -154,8 +193,8 @@ PennyWise
 ## 🎯 Key Engineering Highlights
 
 - Built with a **scalable, feature-first folder architecture**
-- Integrates a **third-party LLM API (Groq)** for dynamic, context-aware content generation
-- Implements **production-grade UX polish** with animation, voice, and adaptive navigation
+- Integrates a **third-party LLM API (Groq)** for dynamic, context-aware content generation, with a graceful fallback path when the API is unavailable
+- Implements **production-grade UX polish** with animation, ambient voice, and adaptive navigation
 - Demonstrates **full-stack ownership** across auth, data modeling, AI integration, and deployment
 - Portfolio-focused **clean, distinctively themed codebase**
 - Deployed and live on Render, with automatic redeploys on every commit
@@ -167,11 +206,12 @@ PennyWise
 
 Being transparent about current gaps rather than overstating what's shipped:
 
-- [ ] PWA install experience needs verification (manifest/icon config)
-- [ ] Tailwind CSS registration needs a final check to confirm all utility classes are building correctly in production
-- [ ] Budget-setting UI (creating/editing a budget from the frontend) is incomplete
-- [ ] Recurring expenses: backend routes not yet implemented
-- [ ] General cleanup pass for dead code
+- [ ] PWA install experience is still broken — `manifest.json` isn't linked from `index.html`, and none of the icon files it references (`icon-16.png` through `icon-512.png`) exist yet; only a source `icon.svg` does
+- [ ] Tailwind is installed but not registered in the Vite build (no plugin in `vite.config.js`, no `@import` in `index.css`). Most of the UI uses inline styles or scoped `<style>` blocks so it still renders, but a few components — the goals page, the AI roast card, and the voice button/toast — lean on Tailwind utility classes that currently do nothing
+- [ ] Dashboard still duplicates its own sidebar/topbar instead of using the shared `Layout` component, and the two nav lists have drifted apart — Budgets is currently only linkable from Dashboard's copy
+- [ ] Ambient voice timing is still set to testing values (fires every 15–30s at a 90% chance) rather than the production cadence noted in the code's own comments (90s–4min at 40%)
+- [ ] A few loose ends from the cleanup pass: `html2canvas` and `express-validator` are installed but unused, `hero.png` isn't referenced anywhere, and a stray `icons.svg` sits outside `public/icons/`
+- [ ] `.github/workflows/deno.yml` is a leftover Deno CI workflow — this is a Node/Express project, so it fails on every push/PR as-is
 
 ---
 
@@ -180,7 +220,9 @@ Being transparent about current gaps rather than overstating what's shipped:
 > Add screenshots here:
 
 - Dashboard ("The Lair") with streak counter
-- Goals with balloon progress ("Escape from Derry")
+- Goals with progress tracking ("Escape from Derry")
+- Budgets with category limits ("The Deadlights")
+- Recurring payments ("The Ritual")
 - AI roast in action
 - Mobile bottom navigation
 - The Case File — CSV / PDF export
@@ -205,7 +247,7 @@ cd ../client && npm install
 
 ### 3️⃣ Configure Environment Variables
 
-Create a `.env` file inside `server/` (use `.env.example` as reference):
+Create a `.env` file at the **project root** — `server/index.js` loads it from one level up (`dotenv.config({ path: "../.env" })`), so it belongs next to `client/` and `server/`, not inside `server/`:
 
 ```
 MONGO_URI=your_mongodb_connection_string
@@ -214,7 +256,7 @@ GROQ_API_KEY=your_groq_api_key
 PORT=5000
 ```
 
-Create a `.env` file inside `client/`:
+Create a separate `.env` file inside `client/` (Vite loads this one automatically):
 
 ```
 VITE_API_URL=http://localhost:5000
@@ -223,6 +265,15 @@ VITE_API_URL=http://localhost:5000
 > Never commit either `.env` file to version control.
 
 ### 4️⃣ Run Locally
+
+**Option A — one command from the project root:**
+
+```bash
+npm install       # once, to get concurrently
+npm run dev
+```
+
+**Option B — two terminals:**
 
 ```bash
 # In server/
